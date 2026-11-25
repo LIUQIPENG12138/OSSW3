@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동네 카페 매출 대시보드 · 社区咖啡店销售数据仪表板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f6f3ee;
+      --surface: #ffffff;
+      --surface-soft: #faf7f2;
+      --border: #e5ddd3;
+      --espresso: #3b261d;
+      --caramel: #b45309;
+      --caramel-soft: rgba(180, 83, 9, 0.1);
+      --sage: #2f6f5e;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Noto Sans KR", "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    .dashboard {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 28px 18px 46px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #3b261d 0%, #5c3a28 100%);
+      color: #fff8f0;
+      border-radius: 18px;
+      padding: 26px 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 25px rgba(59, 38, 29, 0.16);
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 248, 240, 0.15);
+      border: 1px solid rgba(255, 248, 240, 0.28);
+      color: #fde68a;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.4rem, 3.4vw, 2.05rem);
+    }
+
+    .header p {
+      margin: 0;
+      color: #f3e8dc;
+      font-size: 0.94rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .kpi-label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      display: block;
+      font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+      font-weight: 800;
+      color: var(--espresso);
+      word-break: break-word;
+    }
+
+    .kpi-sub {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--caramel);
+      font-weight: 600;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    }
+
+    .panel h2 {
+      margin: 0 0 4px;
+      font-size: 1.12rem;
+      color: var(--espresso);
+    }
+
+    .panel-desc {
+      margin: 0 0 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 310px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93rem;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--surface-soft);
+      color: var(--espresso);
+      font-weight: 700;
+    }
+
+    td.num,
+    th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody tr:hover {
+      background: var(--surface-soft);
+    }
+
+    .peak-tag {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--caramel-soft);
+      color: var(--caramel);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .footer {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        padding: 20px 18px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <div class="badge">☕ FICTIONAL CAFE DATA · 10일 × 10종 메뉴 · 实践3</div>
+      <h1 id="cafe-title">별빛 골목 카페 매출 대시보드 · 星光小巷咖啡馆销售仪表板</h1>
+      <p id="cafe-period">가상 데이터 기간: 2026-11-02 ~ 2026-11-11 (10일 · 10종 메뉴) / 虚构数据周期：10天 × 10种菜单</p>
+    </header>
+
+    <section class="kpi-grid" aria-label="핵심 매출 지표 / 核心销售指标">
+      <article class="kpi-card">
+        <span class="kpi-label">총 매출 합계 · 总销售额</span>
+        <strong id="kpi-total-revenue" class="kpi-value">-</strong>
+        <span class="kpi-sub">10일 누적 · 10天累计</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">총 판매 수량 · 总销量</span>
+        <strong id="kpi-total-qty" class="kpi-value">-</strong>
+        <span class="kpi-sub">10종 메뉴 합산 · 10种菜单合计</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">일 평균 매출 · 日均销售额</span>
+        <strong id="kpi-avg-daily" class="kpi-value">-</strong>
+        <span class="kpi-sub">10일 평균 · 10天平均</span>
+      </article>
+      <article class="kpi-card">
+        <span class="kpi-label">최고 매출일 · 最高销售额日</span>
+        <strong id="kpi-best-day" class="kpi-value">-</strong>
+        <span id="kpi-best-day-sub" class="kpi-sub">-</span>
+      </article>
+    </section>
+
+    <section class="charts-grid" aria-label="매출 및 판매량 차트 / 销售额与销量图表">
+      <article class="panel">
+        <h2>① 일별 매출 꺾은선 차트 · 按日销售额折线图</h2>
+        <p class="panel-desc">10일간의 일자별 총 매출 추이 (단위: 원) · 10天每日总销售额趋势（单位：韩元）</p>
+        <div class="chart-box">
+          <canvas id="dailyRevenueChart"></canvas>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>② 메뉴별 판매량 막대 차트 · 各菜单销量柱状图</h2>
+        <p class="panel-desc">10종 메뉴의 10일 누적 판매 수량 (단위: 잔/개) · 10种菜单10天累计销量（单位：杯/份）</p>
+        <div class="chart-box">
+          <canvas id="menuQtyChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel" aria-labelledby="weekday-table-title">
+      <h2 id="weekday-table-title">③ 요일별 평균 매출 표 · 按星期统计的平均销售额表格</h2>
+      <p class="panel-desc">월요일부터 일요일까지 요일별 평균 매출 비교 · 周一至周日各星期平均销售额对比</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>요일 · 星期</th>
+              <th class="num">집계 일수 · 统计天数</th>
+              <th class="num">요일 누적 매출 · 累计销售额</th>
+              <th class="num">요일 평균 매출 · 平均销售额</th>
+            </tr>
+          </thead>
+          <tbody id="weekday-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footer">
+      본 대시보드의 상호 및 판매 데이터는 실습용 가상 데이터입니다. · 本仪表板的店名与销售数据均为练习用虚构数据。
+    </footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="chart.js"></script>
+</body>
+</html>

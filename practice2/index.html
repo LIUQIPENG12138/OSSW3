@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게임 룰렛 · 游戏轮盘</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="badge">🎯 WEB APP · 实践2 · PURE JS + LOCALSTORAGE</div>
+      <h1>게임 룰렛 <span class="zh">游戏轮盘</span></h1>
+      <p class="subtitle">
+        오늘 할 게임을 추가하고 룰렛을 돌려보세요! · 添加你想玩的游戏，转动轮盘随机选一款！
+      </p>
+    </header>
+
+    <main class="main-grid">
+      <!-- Wheel & Result Panel -->
+      <section class="card wheel-panel" aria-label="룰렛 판 / 轮盘区域">
+        <div class="wheel-stage">
+          <div class="pointer" aria-hidden="true">▼</div>
+          <canvas id="roulette-canvas" width="420" height="420" aria-label="게임 룰렛 캔버스"></canvas>
+        </div>
+
+        <div class="spin-controls">
+          <button id="spin-btn" class="btn-spin" type="button" disabled>
+            🎲 돌리기 · 旋转 (2초 / 2秒)
+          </button>
+        </div>
+
+        <div id="result-box" class="result-box" aria-live="polite">
+          <span class="result-label">선택된 게임 · 抽中游戏</span>
+          <strong id="result-text" class="result-text">게임을 추가하고 돌려주세요 · 请先添加游戏并旋转</strong>
+        </div>
+      </section>
+
+      <!-- Game List Manager Panel -->
+      <section class="card list-panel" aria-label="게임 목록 관리 / 游戏列表管理">
+        <h2>게임 목록 관리 <span class="zh">游戏列表管理</span></h2>
+
+        <form id="add-form" class="add-form" novalidate>
+          <label for="game-input" class="sr-only">게임 이름 입력 / 输入游戏名称</label>
+          <input
+            id="game-input"
+            type="text"
+            maxlength="40"
+            placeholder="게임 이름 입력 · 输入游戏名称 (예: 배틀필드 5)"
+            autocomplete="off"
+          >
+          <button id="add-btn" class="btn-add" type="submit">추가 · 添加</button>
+        </form>
+
+        <p id="form-feedback" class="feedback" role="status" aria-live="polite"></p>
+
+        <div class="list-toolbar">
+          <span id="count-label" class="count-label">총 0개 · 共 0 项</span>
+          <div class="toolbar-actions">
+            <button id="sample-btn" class="btn-secondary" type="button">예시 채우기 · 示例</button>
+            <button id="clear-btn" class="btn-danger-ghost" type="button">전체 삭제 · 清空</button>
+          </div>
+        </div>
+
+        <ul id="game-list" class="game-list"></ul>
+        <p id="empty-hint" class="empty-hint">
+          목록이 비어 있습니다. 위 입력창에 게임을 추가해 주세요.<br>
+          列表为空，请在上方输入框中添加游戏。
+        </p>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      새로고침해도 목록이 유지됩니다 (localStorage 저장) · 刷新页面后列表依然保留（localStorage 本地存储）
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
